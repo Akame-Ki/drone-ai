@@ -6,6 +6,8 @@ avec la librairie Python [`codrone-edu`](https://pypi.org/project/codrone-edu/).
 - Image : `python:3.12-slim` + `codrone-edu==2.10` (numpy, Pillow, pyserial, colorama).
 - Podman **rootless**, SELinux géré, accès série USB et hot-plug.
 - Deux modes de lancement : `scripts/run.sh` (quotidien) ou `compose.yaml`.
+- Pilotage au clavier avec HUD de télémétrie, vue tactique (FPV synthétique,
+  lidar, trajectoire 3D) : voir [Contrôle clavier et HUD](#contrôle-clavier-et-hud).
 
 ## Contenu
 
@@ -15,6 +17,11 @@ requirements.txt               codrone-edu==2.10
 compose.yaml                   service Podman Compose
 scripts/run.sh                 lanceur + détection du contrôleur
 scripts/check_ports.py         diagnostic des ports série
+scripts/hud.py                 HUD de télémétrie (lecture seule)
+scripts/control.py             pilotage clavier + HUD + vue tactique
+scripts/tactical.py            vue tactique : FPV synthétique, lidar, trajectoire 3D
+src/codrone_project/telemetry.py  lecture de tous les flux de données du drone
+docs/                          documentation détaillée
 examples/hello_drone.py        test sans vol (batterie + LED)
 examples/first_flight.py       décollage / hover / atterrissage
 udev/99-codrone-edu.rules      accès série pour l'utilisateur connecté
@@ -76,6 +83,43 @@ Ou en une commande depuis l'hôte :
 
 `scripts/run.sh` construit l'image automatiquement si elle n'existe pas et affiche
 le port du contrôleur détecté. Sans argument, il ouvre un shell.
+
+## Contrôle clavier et HUD
+
+Fenêtres tkinter : à lancer **sur l'hôte** (Windows ou Linux), pas dans le conteneur.
+
+```bash
+pip install -r requirements.txt     # une fois (Linux : sudo dnf install python3-tkinter)
+
+python scripts/hud.py COM5          # télémétrie seule, n'envoie aucune commande
+python scripts/control.py COM5 --power 25 --advanced   # pilotage, vue tactique
+```
+
+Windows : le port est dans le Gestionnaire de périphériques → Ports (COM et LPT).
+Linux : `/dev/ttyACM0`. Sans port, il est détecté automatiquement.
+Un seul programme peut utiliser le port à la fois : ferme `hud.py` avant `control.py`.
+
+| Touche | Action |
+|---|---|
+| W / S · A / D · Q / E | avant / arrière · gauche / droite · tourner |
+| Shift / Ctrl | monter / descendre |
+| Espace | décollage / atterrissage |
+| **Échap** | **arrêt d'urgence (le drone tombe)** |
+| + / - / molette · F1–F3 | puissance des sticks · niveau de vitesse |
+| Flèches · H · R · L | flip · headless · retour maison · LED |
+| Tab · C | changer de vue · effacer la carte |
+
+Détails, sécurité et premiers vols : [docs/controle.md](docs/controle.md).
+
+## Documentation
+
+| Doc | Contenu |
+|---|---|
+| [docs/controle.md](docs/controle.md) | pilotage clavier, sécurité, vue tactique |
+| [docs/hud.md](docs/hud.md) | toutes les données affichées, unités, flags d'erreur |
+| [docs/architecture.md](docs/architecture.md) | fonctionnement du code, ajouter une touche ou une donnée |
+| [docs/commands.md](docs/commands.md) | référence de toutes les commandes `codrone_edu` |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | branches, Pull Requests, messages de commit |
 
 ## Raccourcis Make
 
