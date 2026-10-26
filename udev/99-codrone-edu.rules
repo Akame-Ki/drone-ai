@@ -1,0 +1,10 @@
+# CoDrone EDU - accès série pour l'utilisateur connecté (ACL systemd-logind).
+# VID 0483 = STMicroelectronics (CDC-ACM), 1a86 = QinHeng CH340.
+# Installation :
+#   sudo install -m 644 udev/99-codrone-edu.rules /etc/udev/rules.d/
+#   sudo udevadm control --reload
+#   sudo udevadm trigger --subsystem-match=tty
+# Puis débranche/rebranche la manette.
+
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0483", TAG+="uaccess"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", TAG+="uaccess"

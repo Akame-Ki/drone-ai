@@ -1,0 +1,23 @@
+name: codrone-dev
+
+services:
+  codrone:
+    build:
+      context: .
+      dockerfile: Containerfile
+    image: codrone-dev:3.12
+    container_name: codrone-dev
+    working_dir: /workspace
+    volumes:
+      # Code du projet (SELinux est géré par security_opt: label=disable).
+      - .:/workspace
+      # Accès série + hot-plug : --device-cgroup-rule n'existe pas en rootless.
+      - /dev:/dev
+    group_add:
+      # Conserve le groupe dialout dans le conteneur (Podman rootless).
+      - keep-groups
+    security_opt:
+      - label=disable
+    stdin_open: true
+    tty: true
+    command: ["bash"]

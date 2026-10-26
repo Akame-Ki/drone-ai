@@ -1,0 +1,1 @@
+codrone-edu==2.10
